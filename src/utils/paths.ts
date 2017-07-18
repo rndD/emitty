@@ -17,7 +17,7 @@ export function relative(from: string, to: string): string {
 	return normalize(path.relative(from, to));
 }
 
-export function expandGlobPatterns(toExclude: string[]) {
+export function expandGlobPatterns(toExclude: string[]): string[] {
 	const result = toExclude;
 
 	// Expand **/name to  **/name + **/name/**

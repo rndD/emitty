@@ -17,8 +17,8 @@ import { pathExists, statFile, readFile } from '../utils/fs';
 
 export class Stream {
 
-	private scanner;
-	private resolver;
+	private scanner: Scanner;
+	private resolver: Resolver;
 
 	constructor(private root: string, private storage: Storage, private language: ILanguage, private options: IOptions) {
 		this.scanner = new Scanner(this.root, this.storage, this.language, this.options);
@@ -76,27 +76,27 @@ export class Stream {
 	/**
 	 * Determines whether to send the Vinyl file to a Stream.
 	 */
-	private filterFileByDependencies(filepath: string, mainFile: string, streamCtx: any, file: Vinyl, cb: Function) {
+	private filterFileByDependencies(filepath: string, mainFile: string, streamCtx: any, file: Vinyl, cb: Function): void {
 		const changedFile = normalize(filepath);
-		if (this.resolver.checkDependency(mainFile, changedFile)) {
-			if (this.options.makeVinylFile) {
-				return this.makeVinylFile(mainFile).then((vFile) => {
-					this.pushFile(streamCtx, vFile, mainFile);
-					return cb();
-				});
-			}
+		if (!this.resolver.checkDependency(mainFile, changedFile)) {
+			return cb();
+		}
 
+		if (!this.options.makeVinylFile) {
 			this.pushFile(streamCtx, file, mainFile);
 			return cb();
 		}
 
-		return cb();
+		this.makeVinylFile(mainFile).then((vFile) => {
+			this.pushFile(streamCtx, vFile, mainFile);
+			return cb();
+		});
 	}
 
 	/**
 	 * Push Vinyl file to a Stream.
 	 */
-	private pushFile(ctx: any, file: Vinyl, filepath: string) {
+	private pushFile(ctx: any, file: Vinyl, filepath: string): void {
 		ctx.push(file);
 		this.options.log(filepath);
 	}
@@ -104,7 +104,7 @@ export class Stream {
 	/**
 	 * Calculates relative path of the Vinyl file in Stream.
 	 */
-	private makeMainFilePath(root: string, file: Vinyl) {
+	private makeMainFilePath(root: string, file: Vinyl): string {
 		let filepath = '';
 		if (file.path) {
 			filepath = path.relative(file.cwd, file.path);

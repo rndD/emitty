@@ -14,8 +14,12 @@ export interface ILanguage {
 	partials?: boolean;
 }
 
-export const builtInConfigs = {
-	jade: <ILanguage>{
+export interface IBuiltInConfigs {
+	[name: string]: ILanguage;
+}
+
+export const builtInConfigs: IBuiltInConfigs = {
+	jade: {
 		extensions: ['.jade'],
 		matcher: /(?:^|:)\s*(?:include|extends):?.*\s+(.*)/,
 		comments: {
@@ -25,12 +29,12 @@ export const builtInConfigs = {
 		indentBased: true
 	},
 
-	pug: <ILanguage>{
+	pug: {
 		extends: 'jade',
 		extensions: ['.pug']
 	},
 
-	nunjucks: <ILanguage>{
+	nunjucks: {
 		extensions: ['.njk'],
 		matcher: /{%\s*(?:include|import|extends)\s['"]([^'"]+)['"]\s.*?%}/,
 		comments: {
@@ -39,13 +43,13 @@ export const builtInConfigs = {
 		}
 	},
 
-	sugarml: <ILanguage>{
+	sugarml: {
 		extends: 'pug',
 		extensions: ['.sgr', '.sml'],
 		matcher: /(?:^|:)\s*(?:include|extends)\(?src=['"]([^'"]+)['"].*\)/
 	},
 
-	posthtml: <ILanguage>{
+	posthtml: {
 		extensions: ['.html'],
 		matcher: /<(?:extends|include).*?src=['"]([^'"]+)['"].*?>/,
 		comments: {
@@ -54,7 +58,7 @@ export const builtInConfigs = {
 		}
 	},
 
-	less: <ILanguage>{
+	less: {
 		extensions: ['.less'],
 		matcher: /@import.*?['"]([^'"]+)['"]\s*/,
 		comments: {
@@ -63,7 +67,7 @@ export const builtInConfigs = {
 		}
 	},
 
-	stylus: <ILanguage>{
+	stylus: {
 		extensions: ['.styl'],
 		matcher: /^\s*@(?:import|require).*?['"]([^'"]+)['"]\s*/,
 		comments: {
@@ -73,14 +77,14 @@ export const builtInConfigs = {
 		indentBased: true
 	},
 
-	sass: <ILanguage>{
+	sass: {
 		extends: 'less',
 		extensions: ['.sass'],
 		indentBased: true,
 		partials: true
 	},
 
-	scss: <ILanguage>{
+	scss: {
 		extends: 'less',
 		extensions: ['.scss'],
 		partials: true
@@ -123,19 +127,19 @@ export class Config {
 		return this.config;
 	}
 
-	private assertExtensions() {
+	private assertExtensions(): void {
 		if ((!this.extends && !this.extensions) || (this.extensions && !Array.isArray(this.extensions))) {
 			throw new TypeError('the "extensions" field must be an Array of strings');
 		}
 	}
 
-	private assertMatcher() {
+	private assertMatcher(): void {
 		if ((!this.extends && !this.matcher) || (this.matcher && this.matcher instanceof RegExp === false)) {
 			throw new TypeError('the "matcher" field must be a RegExp');
 		}
 	}
 
-	private assertComments() {
+	private assertComments(): void {
 		let showError = false;
 		if (!this.extends && !this.comments) {
 			showError = true;
@@ -150,7 +154,7 @@ export class Config {
 		}
 	}
 
-	private assertName(name: string) {
+	private assertName(name: string): void {
 		if (!builtInConfigs.hasOwnProperty(name)) {
 			throw new Error(`the configuration "${name}" clound not found`);
 		}
